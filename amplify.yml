@@ -1,0 +1,32 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Asegura Node 20 (recomendado para Next 15)
+        - if command -v nvm >/dev/null 2>&1; then nvm install 20 && nvm use 20; fi
+        - npm ci
+    build:
+      commands:
+        # Respeta tus scripts (usa Turbopack en build)
+        - npm run build
+  artifacts:
+    # Next.js genera la carpeta .next para hosting en Amplify
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    # Cachea dependencias y caché de Next para acelerar builds
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
+  customHeaders:
+    # Evita contenido obsoleto en el CDN tras nuevos deploys
+    - pattern: '**/*'
+      headers:
+        - key: Cache-Control
+          value: max-age=0,no-cache,no-store,must-revalidate
+        - key: Pragma
+          value: no-cache
+        - key: Expires
+          value: '0'
